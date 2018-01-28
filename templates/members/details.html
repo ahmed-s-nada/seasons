@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+{% extends "members/base.html" %}
+{% load staticfiles %}
+{% load static %}
+{% block content %}
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Details</title>
+  </head>
+  <body>
+
+      {% block body_block %}
+      <div class="container mybg1">
+        <h1>Welcome to the details page</h1>
+        <p>User name: {{ single_member.User_Name }}</p>
+        <p>First name: {{ single_member.First_Name }}</p>
+        <p>Last name: {{ single_member.Last_Name }}</p>
+        <p>Work Place: {{ single_member.place }} </p>
+        <p>Gender: {{ single_member.Gender }}</p>
+        <p>Birthday: {{ single_member.birthDay }}</p>
+        <p>Email: {{ single_member.Email }}</p>
+        <p>Subscribtion: {{ single_member.Memebership_type }}</p>
+        {% if  single_member.profile_image.url != ""%}
+          <img src="{{ single_member.profile_image.url }}" hight= "300" width="400" alt=" where is the image?">
+        {% else %}
+          <p> No image uploaded for this member</p>
+        {% endif %}
+      </div>
+      {% endblock %}
+
+
+  </body>
+</html>
+{% endblock %}

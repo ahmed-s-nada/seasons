@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+{% extends "members/base.html" %}
+{% load staticfiles %}
+{% load static %}
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>List Data</title>
+  </head>
+  <body>
+    {% block body_block %}
+    <ol>
+      {% for m in all_members %}
+        <h3><li> <a href="{{ m.id }}">{{ m.User_Name }}</a> </li></h3>
+      {% endfor %}
+    </ol>
+    {% endblock %}
+
+
+  </body>
+</html>

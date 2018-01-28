@@ -1,0 +1,33 @@
+{% extends 'registeration/base.html' %}
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Log in</title>
+  </head>
+  <body>
+    {% block body_block  %}
+      <div class="jumbotron">
+        <form class="form-control" action="{% url 'registeration:user_login' %}" method="post">
+          {% csrf_token %}
+
+          <label for="User Name"> User Name: </label>
+          <input type="text" name="User Name" placeholder="Enter user name">
+
+          <label for="Password">Usre Password</label>
+          <input type="password" name="Password" placeholder="Enter password">
+
+          <input type="submit" class="btn btn-primary" value="Log in">
+
+        </form>
+
+
+      </div>
+
+
+    {% endblock %}
+
+  </body>
+</html>

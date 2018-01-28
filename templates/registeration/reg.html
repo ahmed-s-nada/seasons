@@ -1,0 +1,31 @@
+{% extends 'registeration/base.html' %}
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Register</title>
+  </head>
+  <body>
+    {% block body_block %}
+      {% if registered %}
+        <h1>Thanks for registering!</h1>
+      {% else %}
+          <form class="" action="" method="post" enctype="multipart/form-data">
+            <h3>Fill the form: </h3>
+            {% csrf_token %}
+            {{ user_form.as_p }}
+            {{ profile_form.as_p }}
+            <input type="submit" calss= "btn btn-primary" name="" value="submit">
+          </form>
+
+
+      {% endif %}
+
+
+    {% endblock %}
+
+
+  </body>
+</html>

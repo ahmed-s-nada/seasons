@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+{% extends "members/base.html" %}
+{% load staticfiles %}
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    {% block body_block %}
+
+    <form class="form-control mybg1" action="" method="post" enctype="multipart/form-data">
+      {{ members.User_Name.errors }}
+      <label class="mybg3" for="{{ members.User_name.id_for_label }}">User Name:</label>
+      {{ members.User_Name }}
+      {% csrf_token %}
+
+      {{ members.First_Name.errors }}
+      <label class="mybg3" for="{{ members.First_name.id_for_label }}">First Name:</label>
+      {{ members.First_Name }}
+      {% csrf_token %}
+
+      <p></p>
+
+      {{ members.Last_Name.errors }}
+      <label class="mybg3" for="{{ members.Last_name.id_for_label }}">Last Name:</label>
+      {{ members.Last_Name }}
+      {% csrf_token %}
+
+      {{ members.place.errors }}
+      <label class="mybg3" for="{{ members.Last_name.id_for_label }}">Work Place:</label>
+      {{ members.place }}
+      {% csrf_token %}
+
+
+      {{ members.Gender.errors }}
+      <label class="mybg4" for="{{ members.Gender.id_for_label }}">Gender:</label>
+      {{ members.Gender }}
+      {% csrf_token %}
+
+      <p></p>
+
+      {{ members.birthDay.errors }}
+      <label class="mybg4" for="{{ members.birthDay.id_for_label }}">Birth Day:</label>
+      {{ members.birthDay }}
+      {% csrf_token %}
+
+      {{ members.Memebership_type.errors }}
+      <label class="mybg4" for="{{ members.Memebership_type.id_for_label }}">Memebership type:</label>
+      {{ members.Memebership_type }}
+      {% csrf_token %}
+
+      <p></p>
+
+      {{ members.Email.errors }}
+      <label class="mybg3" for="{{ members.Email.id_for_label }}">Email:</label>
+      {{ members.Email }}
+      {% csrf_token %}
+
+      <p></p>
+
+      {{ members.profile_image.errors }}
+      <label class="mybg2" for="{{ members.profile_image.id_for_label }}">profile image:</label>
+      {{ members.profile_image }}
+
+      <!-- {% csrf_token %} -->
+
+
+      <p></p>
+
+      <input type="submit" class="btn btn-outline-danger btn-lg" name="" value="Submit">
+
+    </form>
+    {% endblock %}
+  </body>
+</html>

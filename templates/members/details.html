@@ -15,17 +15,24 @@
       <div class="container mybg1">
         <h1>Welcome to the details page</h1>
         <p>User name: {{ single_member.User_Name }}</p>
-        <p>First name: {{ single_member.First_Name }}</p>
-        <p>Last name: {{ single_member.Last_Name }}</p>
-        <p>Work Place: {{ single_member.place }} </p>
-        <p>Gender: {{ single_member.Gender }}</p>
+        <p>First name: {{ single_member.first_name }}</p>
+        <p>Last name: {{ single_member.last_name }}</p>
+        <p>Work Place: {{ single_member.age }} </p>
+        <p>Gender: {{ single_member.gender }}</p>
         <p>Birthday: {{ single_member.birthDay }}</p>
         <p>Email: {{ single_member.Email }}</p>
         <p>Subscribtion: {{ single_member.Memebership_type }}</p>
         {% if  single_member.profile_image.url != ""%}
-          <img src="{{ single_member.profile_image.url }}" hight= "300" width="400" alt=" where is the image?">
+          <img id="image1" src="{{ single_member.profile_image.url }}" hight= "300" width="400" alt=" where is the image?">
         {% else %}
           <p> No image uploaded for this member</p>
+        {% endif %}
+        <hr>
+        {% if single_member.submember_set.all %}
+          {% for sub in single_member.submember_set.all %}
+            {{sub.name}}
+            <img id="image2" src="{{ sub.profile_image.url }}" hight= "300" width="400" alt="">
+          {% endfor %}
         {% endif %}
       </div>
       {% endblock %}

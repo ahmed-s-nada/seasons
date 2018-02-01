@@ -20,12 +20,12 @@ from registeration.views import user_logout
 from django.conf.urls.static import static
 from django.conf import settings
 
-admin.site.site_header = "Seasons's Member admin area"
+admin.site.site_header = "Seasons's Members admin area"
 admin.site.site_title  = "Seasons"
 
 urlpatterns = [
     path('', home_page, name = 'index'),
-    path('form/', include('members.urls')),
+    path('members/', include('members.urls')),
     path('registeration/', include('registeration.urls')),
     path('admin/', admin.site.urls),
     path('logout/', user_logout, name= 'logout'),

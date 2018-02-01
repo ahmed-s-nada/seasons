@@ -81,6 +81,23 @@ WSGI_APPLICATION = 'Full_Members.wsgi.application'
 EXPLORER_CONNECTIONS = { 'Default': 'readonly' }
 EXPLORER_DEFAULT_CONNECTION = 'readonly'
 
+
+
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_HOST_USER = "relook4ever@gmail.com"
+EMAIL_HOST_PASSWORD = 'pbczwtidgovjapoe'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'mail.buildoncloud.website'
+# EMAIL_PORT = 143
+# EMAIL_HOST_USER = 'cloud@buildoncloud.website'
+# EMAIL_HOST_PASSWORD = 'rony2004'
+# EMAIL_USE_TLS = False
+# AUTH='PLAIN'
+
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 

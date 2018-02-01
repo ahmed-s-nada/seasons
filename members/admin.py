@@ -1,42 +1,94 @@
 from django.contrib import admin
-from members.models import member, SubMember
 from django import forms
 from datetime import date, datetime
+from members.models import member, SubMember
+from .forms import member_form, SubMemberForm
+from django.utils.html import format_html
+from .admin_image_classes import AdminImageWidget, ImageWidgetAdmin
 
 # Register your models here.
 
 
-class SubMemberForm(forms.ModelForm):
-    class Meta:
-        model = SubMember
-        fields= '__all__'
 
-    def clean_birthDay(self):
-        today = date.today()
-        print (today)
-        if self.cleaned_data['sub_membership_type'] ==  'C':
-            age_defferance = (today - self.cleaned_data['birthDay']).days
-            if age_defferance >= 4380:
-                raise forms.ValidationError ('The age is over 12 years!')
-        return self.cleaned_data['birthDay']
+class SubMemberInline(admin.StackedInline):
+
+    def image_tag(self, obj):
+        if obj.profile_image:
+            return format_html('<img src="{}" width="300" height="300"/>'.format(obj.profile_image.url))
+        else:
+            return 'None'
+    image_tag.short_description = 'Image'
 
 
-class SubMemberInline(admin.TabularInline):
     model = SubMember
     form = SubMemberForm
     extra = 0
-    max_num = 4
-    fields = ['sub_membership_type', 'name', 'gender', 'birthDay','phone']
-    # fieldsets =
+    max_num = 5
+    # fields = ['sub_membership_type', 'name', 'gender', 'birthDay','phone']
+    fieldsets = (
+    ('SubMember info', {
+        'fields':( ('sub_membership_type', 'sub_member_active'))
+    }),
+    (
+    None ,{
+        'fields' : ( ('name' , 'gender', 'birthDay'),
+                   ('job_title', 'company'), ('phone', 'email'), 'image_tag', 'profile_image',)
 
-class memberAdmin(admin.ModelAdmin):
-    fields = ['User_Name','memebership_code','Name','membership_start' ,'renewal_date', 'days_left_to_renewal',
-              'memebership_type','active', 'gender', 'birthDay', 'Age', 'job_title', 'company', 'email', 'email2', 'phone',
-              'phone2', 'fax', 'profile_image', 'uploaded_at' ,'notes' ]
-    search_fields   = ('Name', 'memebership_code', 'membership_start', 'renewal_date', 'active' )
+    })
+    )
+    readonly_fields = ['image_tag']
+
+
+class SubMemberAdmin(ImageWidgetAdmin, admin.ModelAdmin):
+
+    def image_tag(self, obj):
+        if obj.profile_image:
+            return format_html('<img src="{}" width="100" height="100"/>'.format(obj.profile_image.url))
+        else:
+            return 'None'
+    image_tag.short_description = 'Image'
+
+    image_fields = ['profile_image']
+
+    list_display = ['main_user', 'name', 'gender', 'sub_membership_type','phone','image_tag']
+    list_filter  = ['main_user', 'name', 'gender', 'sub_membership_type','phone']
+
+    class Meta:
+        model = SubMember
+
+
+
+
+class memberAdmin(ImageWidgetAdmin, admin.ModelAdmin):
+
+    form = member_form
+
+    image_fields = ['profile_image']
+
+    def image_tag(self, obj):
+        if obj.profile_image:
+            return format_html('<img src="{}" width="100" height="100"/>'.format(obj.profile_image.url))
+        else:
+            return 'None'
+
+    image_tag.short_description = 'Image'
+
+    fieldsets = (
+      ('Membership info', {
+          'fields': (('User_Name','memebership_code'),('first_name','last_name'),('membership_start' ,'renewal_date', 'days_left_to_renewal'),
+             ( 'memebership_type', 'fees', 'active'),)
+      }),
+      ('Personal info', {
+          'fields': ('gender', ('birthDay', 'Age'), ('job_title', 'company'), ('email', 'email2'), ('phone',
+              'phone2', 'fax'), 'profile_image', 'uploaded_at' ,'notes')
+      }),
+   )
+
+
+    search_fields   = ('first_name', 'last_name','memebership_code', 'membership_start', 'renewal_date', 'days_left_to_renewal', 'active' )
     inlines         = [ SubMemberInline ]
-    list_display    = ('Name','memebership_code', 'membership_start', 'renewal_date', 'memebership_type', 'active')
-    list_filter     = ('Name','memebership_code', 'membership_start', 'renewal_date', 'memebership_type', 'active')
+    list_display    = ('first_name','last_name', 'memebership_code', 'membership_start', 'renewal_date', 'days_left_to_renewal', 'memebership_type', 'active', 'image_tag')
+    list_filter     = ('gender', 'membership_start', 'renewal_date', 'memebership_type')
     readonly_fields = ['days_left_to_renewal', 'uploaded_at', 'Age']
 
     class Meta:
@@ -44,13 +96,6 @@ class memberAdmin(admin.ModelAdmin):
 
 
 
-class SubMemberAdmin(admin.ModelAdmin):
-    # form = SubMemberForm
-    list_display = ['main_user', 'name', 'gender', 'sub_membership_type','phone']
-    list_filter  = ['main_user', 'name', 'gender', 'sub_membership_type','phone']
-
-    class Meta:
-        model = SubMember
 
 admin.site.register(member, memberAdmin)
 admin.site.register(SubMember, SubMemberAdmin)

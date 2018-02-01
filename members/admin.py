@@ -6,8 +6,6 @@ from .forms import member_form, SubMemberForm
 from django.utils.html import format_html
 from .admin_image_classes import AdminImageWidget, ImageWidgetAdmin
 
-# Register your models here.
-
 
 
 class SubMemberInline(admin.StackedInline):

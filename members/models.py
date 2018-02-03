@@ -22,7 +22,7 @@ class member(models.Model):
     LIFETIME = 'L'
     MEMBERSHIP_CHOICES = ( (FREE, 'Free'), (ANNUAL, 'Annual'), (LIFETIME, 'Life Time') )
 
-    User_Name            = models.ForeignKey(User, on_delete=models.CASCADE)
+    User_Name            = models.OneToOneField(User, on_delete=models.CASCADE)
     memebership_code     = models.CharField(max_length = 6, unique = True)
     first_name           = models.CharField(max_length = 64, null =True, blank=True)
     last_name            = models.CharField(max_length = 32, null =True, blank=True)

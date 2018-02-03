@@ -73,7 +73,7 @@ class memberAdmin(ImageWidgetAdmin, admin.ModelAdmin):
 
     fieldsets = (
       ('Membership info', {
-          'fields': (('User_Name','memebership_code'),('first_name','last_name'),('membership_start' ,'renewal_date', 'days_left_to_renewal'),
+          'fields': (('User_Name', 'memebership_code'),('first_name','last_name'),('membership_start' ,'renewal_date', 'days_left_to_renewal'),
              ( 'memebership_type', 'fees', 'active'),)
       }),
       ('Personal info', {

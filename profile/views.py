@@ -1,13 +1,15 @@
 from django.shortcuts import render
-from registeration.forms import userProfileInfoForm, userForm
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
+from django.views.generic import CreateView, FormView, TemplateView
+# from .forms import RegisterProfile
 
 # Create your views here.
 def index(request):
     return render(request, 'registeration/index.html')
+
 
 def register(request):
     registered = False

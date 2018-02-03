@@ -1,4 +1,4 @@
-{% extends 'registeration/base.html' %}
+{% extends 'profile/base.html' %}
 {% load staticfiles %}
 
 <!DOCTYPE html>
@@ -16,7 +16,7 @@
             <h3>Fill the form: </h3>
             {% csrf_token %}
             {{ user_form.as_p }}
-            {{ profile_form.as_p }}
+            {{ form.as_p }}
             <input type="submit" calss= "btn btn-primary" name="" value="submit">
           </form>
 

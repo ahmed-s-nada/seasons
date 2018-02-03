@@ -16,19 +16,21 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from members.views import home_page
-from registeration.views import user_logout
 from django.conf.urls.static import static
 from django.conf import settings
+from profile.views import user_login, user_logout
+from django.contrib.auth import views as auth_views
 
 admin.site.site_header = "Seasons's Members admin area"
 admin.site.site_title  = "Seasons"
 
 urlpatterns = [
     path('', home_page, name = 'index'),
-    path('members/', include('members.urls')),
-    path('registeration/', include('registeration.urls')),
+    path('members/', include('members.urls', namespace = 'members')),
+    # path('profile/', include('profile.urls', namespace='Profile') ),
     path('admin/', admin.site.urls),
-    path('logout/', user_logout, name= 'logout'),
+    path('logout/', auth_views.LogoutView.as_view(template_name = 'profile/index.html')  , name= 'logout'),
+    path('login/', auth_views.LoginView.as_view(template_name = 'profile/login.html', redirect_field_name = 'index' )  , name= 'login'),
     path('explorer/', include('explorer.urls')),
     # path('report_builder/', include('report_builder.urls'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

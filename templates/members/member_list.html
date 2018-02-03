@@ -11,7 +11,7 @@
     {% block body_block %}
     <ol>
       {% for m in all_members %}
-        <h3><li> <a href="{{ m.id }}">{{ m.User_Name }}</a> </li></h3>
+        <h3><li> <a href="{{ m.slug }}">{{ m.User_Name }}</a> </li></h3>
       {% endfor %}
     </ol>
     {% endblock %}

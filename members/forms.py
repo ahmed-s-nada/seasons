@@ -1,5 +1,6 @@
 from django import forms
-from members.models import member
+from members.models import member, SubMember
+from datetime import datetime, date
 
 
 class member_form(forms.ModelForm):

@@ -8,5 +8,5 @@ urlpatterns = [
         path('', index, name='Index' ),
         path('add/', member_form, name = 'mainForm'),
         path('list/', login_required(listData.as_view()), name= 'listData'),
-        path('<slug:slug>/', login_required(MembersDetails.as_view()), name= 'MembersDetails'),
+        path('list/<slug:slug>/', login_required(MembersDetails.as_view()), name= 'MembersDetails'),
 ]

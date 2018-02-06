@@ -28,7 +28,7 @@ SECRET_KEY = 'j7x$y@f@p6%7h$$uyp*01y7i5j6i+f6*m_3#lpg+!1wd)k23iq'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+# AUTH_USER_MODEL = 'profile.extendedProfile'
 LOGIN_REDIRECT_URL = '/members/'
 # Application definition
 

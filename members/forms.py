@@ -4,9 +4,17 @@ from datetime import datetime, date
 
 
 class member_form(forms.ModelForm):
+
+    CLUB_CHOICES = ( ('ALAHLY', 'Al-Ahly' ), ('ALZAMALEK', 'Al-Zamalek'), ('WADIDEGLA', 'Wadi-Degla'), ('ALGEZIRA', 'Al-Gezira'), ('NEWGIZA', 'New-Giza'), ('ALSAID', 'Al-Said') )
+    # other_memberships = forms.MultipleChoiceField(
+    # required=False,
+    # widget=forms.CheckboxSelectMultiple,
+    # choices=CLUB_CHOICES,
+    # )
     class Meta:
         model = member
         fields= '__all__'
+
 
     def clean_phone(self):
         if not self.cleaned_data['phone'] is None:

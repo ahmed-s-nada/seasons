@@ -18,7 +18,7 @@ from django.urls import path, include
 from members.views import home_page
 from django.conf.urls.static import static
 from django.conf import settings
-from profile.views import user_login, user_logout
+# from profile.views import user_login, user_logout
 from django.contrib.auth import views as auth_views
 
 admin.site.site_header = "Seasons's Members admin area"

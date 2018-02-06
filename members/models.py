@@ -20,14 +20,15 @@ class member(models.Model):
     ANNUAL   = 'N'
     FREE     = 'F'
     LIFETIME = 'L'
-    MEMBERSHIP_CHOICES = ( (FREE, 'Free'), (ANNUAL, 'Annual'), (LIFETIME, 'Life Time') )
+    MEMBERSHIP_CHOICES = ( (FREE, 'Complementary'), (ANNUAL, 'Annual'), (LIFETIME, 'Life Time') )
+    # CLUB_CHOICES = ( ('ALAHLY', 'Al-Ahly' ), ('ALZAMALEK', 'Al-Zamalek'), ('WADIDEGLA', 'Wadi-Degla'), ('ALJAZIRA', 'Al-Jazira'), ('NEWGIZA', 'New-Giza'), ('ALSAID', 'Al-Said') )
 
     User_Name            = models.OneToOneField(User, on_delete=models.CASCADE)
     memebership_code     = models.CharField(max_length = 6, unique = True)
     first_name           = models.CharField(max_length = 64, null =True, blank=True)
     last_name            = models.CharField(max_length = 32, null =True, blank=True)
     membership_start     = models.DateField(default=datetime.today)
-    renewal_date         = models.DateField(auto_now=False)
+    renewal_date         = models.DateField(auto_now=False, blank = True, null= True)
     days_left_to_renewal = models.IntegerField(editable=False)
     memebership_type     = models.CharField(max_length = 1, choices = MEMBERSHIP_CHOICES, default= ANNUAL)
     fees                 = models.PositiveIntegerField(default=0)
@@ -41,7 +42,13 @@ class member(models.Model):
     email2               = models.EmailField(max_length= 128, blank = True, null = True)
     phone                = models.CharField (max_length=16, null=True, blank=True)
     phone2               = models.CharField (max_length=16, blank=True, null = True)
-    fax                  = models.CharField  (max_length=16, blank=True, null = True)
+    fax                  = models.CharField (max_length=16, blank=True, null = True)
+    al_ahly              = models.BooleanField (default = False)
+    Al_Zamalek           = models.BooleanField (default = False)
+    Wadi_Degla           = models.BooleanField (default = False)
+    New_Giza             = models.BooleanField (default = False)
+    Al_Jazira            = models.BooleanField (default = False)
+    Al_Said              = models.BooleanField (default = False)
     profile_image        = models.ImageField(upload_to = 'profiles', null = True, blank = True)
     uploaded_at          = models.DateTimeField(auto_now_add = True, null = True )
     notes                = models.TextField(null=True, blank=True)
@@ -50,6 +57,7 @@ class member(models.Model):
 
 
     def __str__ (self):
+        print (self.memberprofile.facebook)
         return '{} {}'.format(self.first_name,self.last_name)
 
 
@@ -119,6 +127,8 @@ def count_days_post_init(instance, sender, *args, **kwargs):
             instance.days_left_to_renewal = days_left
         else:
             instance.days_left_to_renewal = 10000
+            instance.renewal_date = today + timedelta(days=10000)
+
 
         if instance.days_left_to_renewal <= -7:
             instance.active = False

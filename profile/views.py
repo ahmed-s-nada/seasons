@@ -3,7 +3,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
-from django.views.generic import CreateView, FormView, TemplateView
+from django.views.generic import CreateView, FormView, TemplateView, UpdateView
+from members.models import member
 # from .forms import RegisterProfile
 
 # Create your views here.
@@ -44,27 +45,37 @@ def register(request):
 
 
 
-def user_login(request):
-    if request.method == 'POST':
-        userName= request.POST.get('User Name')
-        password= request.POST.get('Password')
-        user = authenticate( username = userName, password= password)
-        if user:
-            if user.is_active:
-                login (request, user)
-                return HttpResponseRedirect(reverse('index'))
-            else:
-                return HttpResponse('User in not active!')
-        else:
-            return HttpResponse('Wrong username/password!')
+#
+#
+# class ProfileUpdate(UpdateView):
+#     def get(self, *args, **kwags):
+#         user = request.user
+#
+#     pass
 
-# this else (below) means that the requset is get not post so the user is trying to
-# open the login page this is why we render the login html file, the login page wil not work without this part
-    else:
-        return render(request, 'registeration/login.html')
-
-
-@login_required
-def user_logout(request):
-    logout(request)
-    return HttpResponseRedirect(reverse('index'))
+#
+#
+# def user_login(request):
+#     if request.method == 'POST':
+#         userName= request.POST.get('User Name')
+#         password= request.POST.get('Password')
+#         user = authenticate( username = userName, password= password)
+#         if user:
+#             if user.is_active:
+#                 login (request, user)
+#                 return HttpResponseRedirect(reverse('index'))
+#             else:
+#                 return HttpResponse('User in not active!')
+#         else:
+#             return HttpResponse('Wrong username/password!')
+#
+# # this else (below) means that the requset is get not post so the user is trying to
+# # open the login page this is why we render the login html file, the login page wil not work without this part
+#     else:
+#         return render(request, 'registeration/login.html')
+#
+#
+# @login_required
+# def user_logout(request):
+#     logout(request)
+#     return HttpResponseRedirect(reverse('index'))

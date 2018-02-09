@@ -30,7 +30,8 @@ urlpatterns = [
     # path('profile/', include('profile.urls', namespace='Profile') ),
     path('admin/', admin.site.urls),
     path('logout/', auth_views.LogoutView.as_view(template_name = 'profile/index.html')  , name= 'logout'),
-    path('login/', auth_views.LoginView.as_view(template_name = 'profile/login.html', redirect_field_name = 'index' )  , name= 'login'),
+    path('login/', auth_views.LoginView.as_view(template_name = 'profile/login.html', redirect_field_name = 'members:MembersDetails' )  , name= 'login'),
     path('explorer/', include('explorer.urls')),
+    path('nested_admin/', include('nested_admin.urls')),
     # path('report_builder/', include('report_builder.urls'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

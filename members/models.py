@@ -1,12 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models.signals import pre_save, post_init
+from django.db.models.signals import pre_save, post_init, post_delete
 from datetime import date, datetime, timedelta
 # from .forms import member_form
 from django.utils.text import slugify
 from django.core.mail import send_mail
 # from establishment.models import establishment
-
+import string, secrets
 
 # Create your models here.
 
@@ -23,7 +23,7 @@ class member(models.Model):
     MEMBERSHIP_CHOICES = ( (FREE, 'Complementary'), (ANNUAL, 'Annual'), (LIFETIME, 'Life Time') )
     # CLUB_CHOICES = ( ('ALAHLY', 'Al-Ahly' ), ('ALZAMALEK', 'Al-Zamalek'), ('WADIDEGLA', 'Wadi-Degla'), ('ALJAZIRA', 'Al-Jazira'), ('NEWGIZA', 'New-Giza'), ('ALSAID', 'Al-Said') )
 
-    User_Name            = models.OneToOneField(User, on_delete=models.CASCADE)
+    User_Name            = models.OneToOneField(User, on_delete=models.CASCADE, blank = True, related_name='member_account', editable = False)
     memebership_code     = models.CharField(max_length = 6, unique = True)
     first_name           = models.CharField(max_length = 64, null =True, blank=True)
     last_name            = models.CharField(max_length = 32, null =True, blank=True)
@@ -54,11 +54,67 @@ class member(models.Model):
     notes                = models.TextField(null=True, blank=True)
     slug                 = models.SlugField(blank = True,null= True, editable =False )
 
+    def save(self, *args, **kwargs):
+        # if self.member_account == None:
+        username= self.first_name[0].upper() + '_' + self.last_name + '_' + self.memebership_code
+
+        char_classes = (string.ascii_lowercase,
+                    string.ascii_uppercase,
+                    string.digits,
+                    string.punctuation)
+        size = lambda: secrets.choice(range(8,9))                  # Chooses a password length.
+        char = lambda: secrets.choice(secrets.choice(char_classes)) # Chooses one character, uniformly selected from each of the included character classes.
+        pw = lambda: ''.join([char() for _ in range(size())])     # Generates the variable-length password.
+        password = pw()
+        qs = User.objects.filter(username = username)
+        print (qs)
+        if qs.count() == 0:
+            user = User.objects.create_user(username = username, password = password)
+            self.User_Name = user
+            send_mail('Member Details', 'Hi! This is your login details:\nUsername: {} \nPassword: {} \n'.format(username, password), 'cloud@buildoncloud.website', ['business@ahmed-nada.com'])
+
+        super(member, self).save(*args, **kwargs)
 
 
     def __str__ (self):
-        print (self.memberprofile.facebook)
+        # print (self.memberprofile.facebook)
         return '{} {}'.format(self.first_name,self.last_name)
+
+
+
+
+def member_pre_save(instance, sender, *args, **kwargs):
+
+
+    today    = date.today()
+    if instance.memebership_type == 'N':
+        start     = instance.membership_start
+        instance.renewal_date = start + timedelta(days=365)
+        days_left = (instance.renewal_date-today).days
+        instance.days_left_to_renewal = days_left
+    else:
+        instance.renewal_date = today + timedelta(days=10000)
+        instance.days_left_to_renewal = 10000
+
+    instance.Age = today.year - instance.birthDay.year
+    if instance.first_name == None or instance.last_name == None:
+        instance.slug = slugify(str(instance.memebership_code) + ' NoFullName')
+    else:
+        instance.slug = slugify('{} {}'.format(instance.first_name,instance.last_name))
+    print(instance.slug)
+
+
+
+pre_save.connect(member_pre_save, sender = member)
+
+
+
+def member_post_delete(instance, sender, *args, **kwargs):
+    if not instance.User_Name == 'Admin':
+        user = User.objects.get(username = instance.User_Name)
+        print(user)
+        user.delete()
+post_delete.connect(member_post_delete, sender=member)
 
 
 class SubMember(models.Model):
@@ -89,31 +145,56 @@ class SubMember(models.Model):
 
 class SingleParent(models.Model):
     pass
+    # user = User.objects.create_user()
 
 
-def member_pre_save(instance, sender, *args, **kwargs):
-    today    = date.today()
-    if instance.memebership_type == 'N':
-        start     = instance.membership_start
-        instance.renewal_date = start + timedelta(days=365)
-        days_left = (instance.renewal_date-today).days
-        instance.days_left_to_renewal = days_left
-    else:
-        instance.renewal_date = today + timedelta(days=10000)
-        instance.days_left_to_renewal = 10000
+class Payment(models.Model):
 
-    instance.Age = today.year - instance.birthDay.year
-    if instance.first_name == None or instance.last_name == None:
-        instance.slug = slugify(str(instance.memebership_code) + ' NoFullName')
-    else:
-        instance.slug = slugify('{} {}'.format(instance.first_name,instance.last_name))
-    print(instance.slug)
+    methodes = (('CASH', 'Cash'), ('CRIDIT', 'VISA/MASTER'), ('CHEQUE', 'Cheque'))
+    member               = models.ForeignKey(member, on_delete=models.CASCADE)
+    # payment_methode      = models.CharField(max_length = 11, choices = methodes)
+    payment_details      = models.CharField(max_length = 128, blank = True)
+    last_payment_date    = models.DateField(auto_now=False, blank = True, null = True)
+    required_fees        = models.PositiveIntegerField(default=0)
+    payments_total       = models.PositiveIntegerField (blank=True, default = 0, editable=False)
+    current_credit       = models.IntegerField(default=0, editable=False)
+    number_of_Instalment = models.PositiveIntegerField(editable=False, default= 1)
+
+    def __str__(self):
+        return "Payment of {} by: {}".format(self.payments_total,self.member)
 
 
-    send_mail('Test', 'Test message from seasons, user {} was just saved'.format(instance.first_name), 'cloud@buildoncloud.website', ['business@ahmed-nada.com'])
+class Instalment(models.Model):
+
+    methodes = (('CASH', 'Cash'), ('CRIDIT', 'VISA/MASTER'), ('CHEQUE', 'Cheque'))
+
+    payment_file       = models.ForeignKey(Payment, on_delete=models.CASCADE)
+    payment_methode    = models.CharField(max_length = 11, choices = methodes)
+    instalment_details = models.CharField(max_length = 128, blank = True)
+    instalment_date    = models.DateField(auto_now=False, blank = True,  default = date.today())
+    instalment_value   = models.PositiveIntegerField (blank = True, default = 0)
+
+    def __str__(self):
+        return 'Instalment paid on: {}'.format(self.instalment_date)
 
 
-pre_save.connect(member_pre_save, sender = member)
+def payment_post_init(instance, sender, *args, **kwargs):
+    instalments= instance.instalment_set.all()
+
+    temp_total = 0
+    instance.number_of_Instalment = instalments.count()
+    for i in instalments:
+        temp_total = temp_total + i.instalment_value
+    instance.payments_total    = temp_total
+    instance.current_credit    = instance.payments_total - instance.required_fees
+    if instalments.count() > 0 :
+        instance.last_payment_date = instalments[instalments.count() - 1].instalment_date
+
+
+post_init.connect(payment_post_init, sender = Payment)
+
+
+
 
 
 def count_days_post_init(instance, sender, *args, **kwargs):
@@ -134,6 +215,10 @@ def count_days_post_init(instance, sender, *args, **kwargs):
             instance.active = False
 
 post_init.connect(count_days_post_init, sender=member)
+
+
+
+
 #
 # def SubMemberPreSave(instance, sender,*args, **kwargs):
 #

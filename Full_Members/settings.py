@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'members',
     'profile',
     'explorer',
+    'nested_admin',
     # 'report_builder',
     # 'establishment',
 ]

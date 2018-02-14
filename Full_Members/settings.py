@@ -17,6 +17,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
 MEDIA_DIR = os.path.join(BASE_DIR, 'media')
+# BOWER_COMPONENTS_ROOT = os.path.join(BASE_DIR, 'components')
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
@@ -44,7 +46,13 @@ INSTALLED_APPS = [
     'profile',
     'explorer',
     'nested_admin',
-    # 'report_builder',
+    'import_export',
+    # 'djangobower',
+    # 'admin_tools_stats',
+    # 'django_nvd3',
+    # 'reports'
+    'report_builder',
+    # 'model_report',
     # 'establishment',
 ]
 
@@ -71,11 +79,19 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.static',
+                'django.template.context_processors.media',
 
             ],
         },
     },
 ]
+
+#To use custom admin dashboard, edit dashboard.py file to make any changes
+# ADMIN_TOOLS_INDEX_DASHBOARD = 'dashboard.CustomIndexDashboard'
+# ADMIN_TOOLS_APP_INDEX_DASHBOARD = 'dashboard.CustomAppIndexDashboard'
+
+
 
 WSGI_APPLICATION = 'Full_Members.wsgi.application'
 
@@ -90,6 +106,15 @@ EMAIL_HOST_PASSWORD = 'pbczwtidgovjapoe'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
+
+#
+#
+# BOWER_INSTALLED_APPS = (
+#     'jquery#2.0.3',
+#     'jquery-ui#~1.10.3',
+#     'd3#3.3.6',
+#     'nvd3#1.1.12-beta',
+# )
 
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_HOST = 'mail.buildoncloud.website'
@@ -159,6 +184,11 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
+#
+# STATICFILES_FINDERS = (
+#     'djangobower.finders.BowerFinder',
+# )
+
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [

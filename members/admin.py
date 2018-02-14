@@ -7,6 +7,7 @@ from .forms import member_form, SubMemberForm
 from django.utils.html import format_html
 from .admin_image_classes import AdminImageWidget, ImageWidgetAdmin
 from profile.models import memberProfile
+from import_export.admin import ImportExportMixin
 
 
 class InstalmentInline(NestedTabularInline):
@@ -43,7 +44,7 @@ class SubMemberInline(NestedStackedInline):
 
     def image_tag(self, obj):
         if obj.profile_image:
-            return format_html('<img src="{}" width="300" height="300"/>'.format(obj.profile_image.url))
+            return format_html('<img src="{}" width="240" height="300"/>'.format(obj.profile_image.url))
         else:
             return 'None'
     image_tag.short_description = 'Image'
@@ -90,9 +91,79 @@ class SubMemberAdmin(ImageWidgetAdmin, admin.ModelAdmin):
 
 
 
+class InputFilterNoOfSubmembers(admin.SimpleListFilter):
+    template = 'admin/input_filter.html'
+    title = ('Number of SubMembers')
 
-# class memberAdmin(ImageWidgetAdmin, admin.ModelAdmin):
-class memberAdmin(ImageWidgetAdmin, NestedModelAdmin):
+    parameter_name = 'no_of_submembers'
+
+    def lookups(self, request, model_admin):
+        # Dummy, required to show the filter.
+        return ((),)
+
+    def choices(self, changelist):
+        # Grab only the "all" option.
+        all_choice = next(super().choices(changelist))
+        all_choice['query_parts'] = (
+            (k, v)
+            for k, v in changelist.get_filters_params().items()
+            if k != self.parameter_name
+        )
+        yield all_choice
+
+
+    def queryset(self, request, queryset):
+        if self.value() != None:
+            v = self.value()
+            while True:
+                try:
+                    userInput = int(v)
+                    return queryset.filter(no_of_submembers = userInput )
+                except ValueError:
+                   print("{} Not an integer! Try again.".format(v))
+                   break
+
+
+class FilterByAgeGroup(admin.SimpleListFilter):
+    title = 'Age Group'
+    parameter_name = 'age_group'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('21_30', 'From 21 to 30 years'),
+            ('31_40', 'From 31 to 40 years'),
+            ('41_50', 'From 41 to 50 years'),
+            ('51_60', 'From 51 to 60 years'),
+            ('over_60', 'Over 60 Years')
+            )
+
+    def queryset(self, request, queryset):
+        if self.value() == '21_30':
+            return queryset.filter(Age__gte = 21).filter(Age__lte=30)
+        if self.value() == '31_40':
+            return queryset.filter(Age__gte = 31).filter(Age__lte=40)
+        if self.value() == '41_50':
+            return queryset.filter(Age__gte = 41).filter(Age__lte=50)
+        if self.value() == '51_60':
+            return queryset.filter(Age__gte = 51).filter(Age__lte=60)
+        if self.value() == 'over_60':
+            return queryset.filter(Age__gte = 61)
+
+
+
+def mark_as_active(modeladmin, request, queryset):
+    queryset.update(active = True)
+
+mark_as_active.short_description = 'Actiavte selected memberships'
+
+
+def mark_as_inactive(modeladmin, request, queryset):
+    queryset.update(active = False)
+
+mark_as_inactive.short_description = 'Dectiavte selected memberships'
+
+
+class memberAdmin(ImportExportMixin, ImageWidgetAdmin, NestedModelAdmin ):
 
     form = member_form
 
@@ -107,16 +178,20 @@ class memberAdmin(ImageWidgetAdmin, NestedModelAdmin):
     image_tag.short_description = 'Image'
 
 
-    search_fields   = ('first_name', 'last_name','memebership_code', 'membership_start', 'renewal_date', 'days_left_to_renewal', 'active' )
+    search_fields   = ('first_name', 'last_name','memebership_code' )
     inlines         = [PaymentInline, memberProfileInline, SubMemberInline, ]
-    list_display    = ('first_name','last_name', 'memebership_code', 'membership_start', 'renewal_date', 'days_left_to_renewal', 'memebership_type', 'active', 'image_tag')
-    list_filter     = ('gender', 'membership_start', 'renewal_date', 'memebership_type')
-    readonly_fields = ['User_Name', 'days_left_to_renewal', 'uploaded_at', 'Age']
+    list_display    = ('first_name','last_name', 'memebership_code', 'membership_start',
+                       'renewal_date', 'days_left_to_renewal', 'memebership_type', 'active', 'image_tag')
+    list_filter     = ('memebership_type', 'membership_start', 'renewal_date',
+                        'active', InputFilterNoOfSubmembers, 'gender', FilterByAgeGroup, )
+    readonly_fields = ['User_Name', 'days_left_to_renewal', 'uploaded_at', 'Age', 'no_of_submembers']
+    actions         = [mark_as_active, mark_as_inactive]
 
     fieldsets = (
       ('Membership info', {
-          'fields': (('User_Name', 'memebership_code'),('first_name','last_name'),('membership_start' ,'renewal_date', 'days_left_to_renewal'),
-             ( 'memebership_type', 'active'),)
+          'fields': (('User_Name', 'memebership_code'),('first_name','last_name'),
+                     ('membership_start' ,'renewal_date', 'days_left_to_renewal'),
+             ( 'memebership_type', 'active'),'no_of_submembers',)
       }),
       ('Personal info', {
           'classes': ('collapse',),

@@ -20,6 +20,9 @@ from django.conf.urls.static import static
 from django.conf import settings
 # from profile.views import user_login, user_logout
 from django.contrib.auth import views as auth_views
+# from model_report import report
+
+# report.autodiscover()
 
 admin.site.site_header = "Seasons's Members admin area"
 admin.site.site_title  = "Seasons"
@@ -33,5 +36,6 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(template_name = 'profile/login.html', redirect_field_name = 'members:MembersDetails' )  , name= 'login'),
     path('explorer/', include('explorer.urls')),
     path('nested_admin/', include('nested_admin.urls')),
-    # path('report_builder/', include('report_builder.urls'))
+    # path('admin_tools/', include('admin_tools.urls')),
+    path('report_builder/', include('report_builder.urls'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

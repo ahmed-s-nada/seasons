@@ -130,7 +130,7 @@ EMAIL_USE_TLS = True
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'full_members',
+        'NAME': 'full_members2',
         'USER': 'root',
         'PASSWORD': 'Rony-2017',
         'HOST': 'localhost',

@@ -1,12 +1,16 @@
 from django import forms
-from members.models import (member, SubMemberBase, SingleParentSubmember,
-                            Under21SubMeber, SpouseSubmember, SingleInLawSubmember)
+from members.models import member, SubMember
 from datetime import datetime, date
 
 
 class member_form(forms.ModelForm):
 
-
+    CLUB_CHOICES = ( ('ALAHLY', 'Al-Ahly' ), ('ALZAMALEK', 'Al-Zamalek'), ('WADIDEGLA', 'Wadi-Degla'), ('ALGEZIRA', 'Al-Gezira'), ('NEWGIZA', 'New-Giza'), ('ALSAID', 'Al-Said') )
+    # other_memberships = forms.MultipleChoiceField(
+    # required=False,
+    # widget=forms.CheckboxSelectMultiple,
+    # choices=CLUB_CHOICES,
+    # )
     class Meta:
         model = member
         fields= '__all__'
@@ -45,68 +49,29 @@ class member_form(forms.ModelForm):
 
 
 
-class SpouseSubmemberForm(forms.ModelForm):
+class SubMemberForm(forms.ModelForm):
 
     class Meta:
-        model = SpouseSubmember
+        model = SubMember
         fields= '__all__'
 
-
-    def clean_phone(self):
-        if not self.cleaned_data['phone'] is None:
-            dig = [str(x) for x in range(10)]
-            # print (dig)
-            for c in self.cleaned_data['phone']:
-              # print (c)
-              if not c in dig:
-                    raise forms.ValidationError('Only digits Please')
-        return self.cleaned_data['phone']
-
-
-class SingleParentSubmemberForm(forms.ModelForm):
-
-    class Meta:
-        model = SingleParentSubmember
-        fields= '__all__'
-
-
-    def clean_phone(self):
-        if not self.cleaned_data['phone'] is None:
-            dig = [str(x) for x in range(10)]
-            # print (dig)
-            for c in self.cleaned_data['phone']:
-              # print (c)
-              if not c in dig:
-                    raise forms.ValidationError('Only digits Please')
-        return self.cleaned_data['phone']
-
-class SingleInLawSubmemberForm(forms.ModelForm):
-
-    class Meta:
-        model = SingleInLawSubmember
-        fields= '__all__'
-
-
-    def clean_phone(self):
-        if not self.cleaned_data['phone'] is None:
-            dig = [str(x) for x in range(10)]
-            # print (dig)
-            for c in self.cleaned_data['phone']:
-              # print (c)
-              if not c in dig:
-                    raise forms.ValidationError('Only digits Please')
-        return self.cleaned_data['phone']
-
-
-class Under21SubMeberForm(forms.ModelForm):
-
-    class Meta:
-        model = Under21SubMeber
-        fields= '__all__'
 
     def clean_birthDay(self):
         today = date.today()
-        age_defferance = (today - self.cleaned_data['birthDay']).days
-        if age_defferance >= 7665:
-            raise forms.ValidationError ('The age is over 21 years!')
+        print (today)
+        if self.cleaned_data['sub_membership_type'] ==  'C':
+            age_defferance = (today - self.cleaned_data['birthDay']).days
+            if age_defferance >= 7665:
+                raise forms.ValidationError ('The age is over 21 years!')
         return self.cleaned_data['birthDay']
+
+
+    def clean_phone(self):
+        if not self.cleaned_data['phone'] is None:
+            dig = [str(x) for x in range(10)]
+            # print (dig)
+            for c in self.cleaned_data['phone']:
+              # print (c)
+              if not c in dig:
+                    raise forms.ValidationError('Only digits Please')
+        return self.cleaned_data['phone']

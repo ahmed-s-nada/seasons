@@ -8,7 +8,7 @@ from django.core.mail import send_mail
 import string, secrets
 
 # Create your models here.
-
+# The member section *********************************************************************
 class memberQuerySet(models.query.QuerySet):
     pass
 
@@ -40,7 +40,7 @@ class member(models.Model):
     active               = models.BooleanField(default = True)
     gender               = models.CharField(max_length = 4, choices = GENDER_CHOICES,default = MALE)
     birthDay             = models.DateField(auto_now=False, default = '1980-01-01')
-    Age                  = models.IntegerField(editable=False)
+    age                  = models.IntegerField(editable=False)
     job_title            = models.CharField(max_length=32, blank=True, null = True)
     company              = models.CharField(max_length=32, blank=True, null = True)
     email                = models.EmailField(max_length= 128)
@@ -102,7 +102,7 @@ def member_pre_save(instance, sender, *args, **kwargs):
         instance.renewal_date = today + timedelta(days=10000)
         instance.days_left_to_renewal = 10000
 
-    instance.Age = today.year - instance.birthDay.year
+    instance.age = today.year - instance.birthDay.year
     if instance.first_name == None or instance.last_name == None:
         instance.slug = slugify(str(instance.memebership_code) + ' NoFullName')
     else:
@@ -141,55 +141,132 @@ def member_post_delete(instance, sender, *args, **kwargs):
         user.delete()
 post_delete.connect(member_post_delete, sender=member)
 
+# End of The member section *********************************************************************
 
 
+# The Submember classes section *********************************************************************
 
-class SubMember(models.Model):
+class SubMemberBase(models.Model):
     MALE = 'Mr'
     FEMALE = 'Mrs'
     GENDER_CHOICES = ( (MALE, 'Male'), (FEMALE, 'Female'))
 
-    CHILD        = 'C'
-    SUN_DAUGHTER = 'SD'
-    SPOUSE       = 'S'
-    sub_membership_type = ( (CHILD, 'Child-Under 21'), (SUN_DAUGHTER, 'Father/Mother' ), (SPOUSE, 'Spouse') )
-
-    main_user           = models.ForeignKey(member, on_delete=models.CASCADE, null = True, blank = True)
-    sub_membership_type = models.CharField(max_length = 2, choices = sub_membership_type, default= SPOUSE)
-    name                = models.CharField(max_length = 16)
+    main_member         = models.ForeignKey(member, on_delete=models.CASCADE, null = True, blank = True)
+    # sub_membership_type = models.CharField(max_length = 2, choices = sub_membership_type, default= SPOUSE)
+    first_name          = models.CharField(max_length = 18)
+    last_name           = models.CharField(max_length = 16)
     gender              = models.CharField(max_length = 4, choices = GENDER_CHOICES,default = MALE)
     birthDay            = models.DateField(default = '2000-01-01')
+    age                 = models.PositiveIntegerField(editable=False)
+    profile_image       = models.ImageField(upload_to = 'profiles', null = True, blank = True)
+    sub_member_active   = models.BooleanField(default = True)
+
+    class Meta:
+         abstract = True
+
+    def __str__ (self):
+        return '{} {}'.format(self.first_name, self.last_name)
+
+
+def sub_member_counter_pre_save(instance, sender, *args, **kwargs):
+
+    today    = date.today()
+    instance.age = today.year - instance.birthDay.year
+    if instance._state.adding == True:  # <= cheking if the object is new not an existing one
+        if isinstance (instance, SingleInLawSubmember):
+            spouse = SpouseSubmember.objects.get(id=instance.main_sub_member.id)
+            print (spouse)
+            main_member = member.objects.get(id=spouse.main_member.id)
+            instance.main_member = main_member
+        else:
+            main_member = member.objects.get(id=instance.main_member.id)
+        main_member.no_of_submembers = main_member.no_of_submembers + 1
+        main_member.save()
+
+
+
+def sub_member_counter_pre_delete(instance, sender, *args, **kwargs):
+
+    if isinstance(instance, SpouseSubmember):
+        if instance.singleinlawsubmember_set.all().count() != 0:
+            pass
+        else:
+            main_member = member.objects.get(id=instance.main_member.id)
+            main_member.no_of_submembers = main_member.no_of_submembers - 1
+            main_member.save()
+    else:
+        main_member = member.objects.get(id=instance.main_member.id)
+        main_member.no_of_submembers = main_member.no_of_submembers - 1
+        main_member.save()
+
+
+
+class SingleParentSubmember(SubMemberBase):
+
     job_title           = models.CharField(max_length=32, blank=True, null = True)
     company             = models.CharField(max_length=32, blank=True, null = True)
     phone               = models.CharField (max_length=64, blank=True,  null = True)
     email               = models.EmailField(max_length= 128,  null = True)
-    profile_image       = models.ImageField(upload_to = 'profiles', null = True, blank = True)
-    sub_member_active   = models.BooleanField(default = True)
 
-    def __str__ (self):
-        return self.name
+    class Meta:
+        verbose_name = 'Parent'
+        verbose_name_plural = 'Parent'
 
-def sub_member_counter_pre_save(instance, sender, *args, **kwargs):
-    if instance._state.adding == True:  # <= cheking if the object is new not an existing one
-        main_user = member.objects.get(id=instance.main_user.id)
-        main_user.no_of_submembers = main_user.no_of_submembers + 1
-        main_user.save()
-
-pre_save.connect(sub_member_counter_pre_save, sender = SubMember)
+pre_save.connect(sub_member_counter_pre_save, sender = SingleParentSubmember)
+pre_delete.connect(sub_member_counter_pre_delete, sender = SingleParentSubmember)
 
 
-def sub_member_counter_pre_delete(instance, sender, *args, **kwargs):
-    main_user = member.objects.get(id=instance.main_user.id)
-    main_user.no_of_submembers = main_user.no_of_submembers - 1
-    main_user.save()
 
-pre_delete.connect(sub_member_counter_pre_delete, sender = SubMember)
+class Under21SubMeber(SubMemberBase):
+
+    School              = models.CharField(max_length=32, blank=True, null = True)
+    Grade               = models.CharField(max_length=32, blank=True, null = True)
+    Sport               = models.CharField (max_length=64, blank=True,  null = True)
+
+    class Meta:
+        verbose_name = 'Child Under 21'
+        verbose_name_plural = 'Children Under 21'
+
+pre_save.connect(sub_member_counter_pre_save, sender = Under21SubMeber)
+pre_delete.connect(sub_member_counter_pre_delete, sender = Under21SubMeber)
 
 
-class SingleParent(models.Model):
-    pass
+class SpouseSubmember(SubMemberBase):
+
+    job_title           = models.CharField(max_length=32, blank=True, null = True)
+    company             = models.CharField(max_length=32, blank=True, null = True)
+    phone               = models.CharField (max_length=64, blank=True,  null = True)
+    email               = models.EmailField(max_length= 128,  null = True)
+
+    class Meta:
+        verbose_name = 'Spouse'
+        verbose_name_plural = 'Spouse'
+
+pre_save.connect(sub_member_counter_pre_save, sender = SpouseSubmember)
+pre_delete.connect(sub_member_counter_pre_delete, sender = SpouseSubmember, dispatch_uid='Spouseid')
+
+
+
+class SingleInLawSubmember(SubMemberBase):
+
+    main_sub_member     = models.ForeignKey(SpouseSubmember, on_delete=models.CASCADE, null = True, blank = True)
+    job_title           = models.CharField(max_length=32, blank=True, null = True)
+    company             = models.CharField(max_length=32, blank=True, null = True)
+    phone               = models.CharField (max_length=64, blank=True,  null = True)
+    email               = models.EmailField(max_length= 128,  null = True)
     # user = User.objects.create_user()
+    class Meta:
+        verbose_name = 'In-Law'
+        verbose_name_plural = 'In-Law'
 
+pre_save.connect(sub_member_counter_pre_save, sender = SingleInLawSubmember)
+pre_delete.connect(sub_member_counter_pre_delete, sender = SingleInLawSubmember, dispatch_uid='In_law_id')
+
+
+# END OF The Submember classes section *********************************************************************
+
+
+# The Paymnet section *******************************************************************************
 
 class Payment(models.Model):
 
@@ -235,3 +312,5 @@ def payment_post_init(instance, sender, *args, **kwargs):
 
 
 post_init.connect(payment_post_init, sender = Payment)
+
+# End of The Paymnet section *******************************************************************************

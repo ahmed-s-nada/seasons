@@ -39,7 +39,7 @@ class SingleParentSubmemberInline(NestedStackedInline):
 
 
     model = SingleParentSubmember
-    form = SingleParentSubmemberForm
+    # form = SingleParentSubmemberForm
     extra = 0
     max_num = 1
 
@@ -72,7 +72,7 @@ class SingleInLawSubmemberInline(NestedStackedInline):
 
 
     model = SingleInLawSubmember
-    form = SingleInLawSubmemberForm
+    # form = SingleInLawSubmemberForm
     extra = 0
     max_num = 1
 
@@ -105,7 +105,7 @@ class SpouseSubmemberInline(NestedStackedInline):
 
 
     model = SpouseSubmember
-    form = SpouseSubmemberForm
+    # form = SpouseSubmemberForm
     extra = 0
     max_num = 1
 
@@ -140,7 +140,7 @@ class Under21SubMeberInline(NestedStackedInline):
 
 
     model = Under21SubMeber
-    form = Under21SubMeberForm
+    # form = Under21SubMeberForm
     extra = 0
     max_num = 5
 
@@ -259,11 +259,12 @@ mark_as_inactive.short_description = 'Dectiavte selected memberships'
 
 # End of the Actions section ***************************************************************************
 
+
 # Main admin classes section **************************************************************************
 
 class memberAdmin(ImportExportMixin, ImageWidgetAdmin, NestedModelAdmin ):
 
-    form = member_form
+    # form = member_form
 
     image_fields = ['profile_image']
 
@@ -276,11 +277,23 @@ class memberAdmin(ImportExportMixin, ImageWidgetAdmin, NestedModelAdmin ):
     image_tag.short_description = 'Image'
 
 
+    def days_left(self, obj):
+        if obj.days_left_to_renewal >= 30:
+            return format_html('<div align="right" style="background-color:#b3ffb3;"><b>' + "%.0f" % obj.days_left_to_renewal + '</b></div>')
+        elif  obj.days_left_to_renewal >= 1 and obj.days_left_to_renewal < 30:
+            return format_html('<div align="right" style="background-color:#eef442;"><b>' + "%.0f" % obj.days_left_to_renewal + '</b></div>')
+        else:
+            return format_html('<div align="right" style="background-color:#ff9999;"><b>' + "%.0f" % obj.days_left_to_renewal + '</b></div>')
+
+    days_left.allow_tags = True
+
+
+
     search_fields   = ('first_name', 'last_name','memebership_code' )
     inlines         = [PaymentInline, memberProfileInline, SpouseSubmemberInline,
                        Under21SubMeberInline, SingleParentSubmemberInline]
     list_display    = ('first_name','last_name', 'memebership_code', 'membership_start',
-                       'renewal_date', 'days_left_to_renewal', 'memebership_type', 'active', 'image_tag')
+                       'renewal_date', 'days_left', 'memebership_type', 'active', 'image_tag')
     list_filter     = ('memebership_type', 'membership_start', 'renewal_date',
                         'active', InputFilterNoOfSubmembers, 'gender', FilterByAgeGroup, )
     readonly_fields = ['User_Name', 'days_left_to_renewal', 'uploaded_at', 'age', 'no_of_submembers']

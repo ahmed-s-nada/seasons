@@ -6,6 +6,8 @@ from datetime import date, datetime, timedelta
 from django.utils.text import slugify
 from django.core.mail import send_mail
 import string, secrets
+from . validators import clean_phone
+
 
 # Create your models here.
 # The member section *********************************************************************
@@ -45,9 +47,9 @@ class member(models.Model):
     company              = models.CharField(max_length=32, blank=True, null = True)
     email                = models.EmailField(max_length= 128)
     email2               = models.EmailField(max_length= 128, blank = True, null = True)
-    phone                = models.CharField (max_length=16, null=True, blank=True)
-    phone2               = models.CharField (max_length=16, blank=True, null = True)
-    fax                  = models.CharField (max_length=16, blank=True, null = True)
+    phone                = models.CharField (validators=[clean_phone], max_length=16, null=True, blank=True)
+    phone2               = models.CharField (validators=[clean_phone], max_length=16, blank=True, null = True)
+    fax                  = models.CharField (validators=[clean_phone], max_length=16, blank=True, null = True)
     al_ahly              = models.BooleanField (default = False)
     Al_Zamalek           = models.BooleanField (default = False)
     Wadi_Degla           = models.BooleanField (default = False)
@@ -63,7 +65,7 @@ class member(models.Model):
     def save(self, *args, **kwargs):
         # if self.member_account == None:
         if self._state.adding == True: # <== Chicking if the object is new and being added to the DB
-            username= self.first_name[0].upper() + '_' + self.last_name + '_' + self.memebership_code
+            username= self.first_name[0].upper() + '_' + self.last_name + '_' + str(self.memebership_code)
 
             char_classes = (string.ascii_lowercase,
                         string.ascii_uppercase,
@@ -205,7 +207,7 @@ class SingleParentSubmember(SubMemberBase):
 
     job_title           = models.CharField(max_length=32, blank=True, null = True)
     company             = models.CharField(max_length=32, blank=True, null = True)
-    phone               = models.CharField (max_length=64, blank=True,  null = True)
+    phone               = models.CharField (validators=[clean_phone], max_length=64, blank=True,  null = True)
     email               = models.EmailField(max_length= 128,  null = True)
 
     class Meta:
@@ -235,7 +237,7 @@ class SpouseSubmember(SubMemberBase):
 
     job_title           = models.CharField(max_length=32, blank=True, null = True)
     company             = models.CharField(max_length=32, blank=True, null = True)
-    phone               = models.CharField (max_length=64, blank=True,  null = True)
+    phone               = models.CharField (validators=[clean_phone], max_length=64, blank=True,  null = True)
     email               = models.EmailField(max_length= 128,  null = True)
 
     class Meta:
@@ -252,7 +254,7 @@ class SingleInLawSubmember(SubMemberBase):
     main_sub_member     = models.ForeignKey(SpouseSubmember, on_delete=models.CASCADE, null = True, blank = True)
     job_title           = models.CharField(max_length=32, blank=True, null = True)
     company             = models.CharField(max_length=32, blank=True, null = True)
-    phone               = models.CharField (max_length=64, blank=True,  null = True)
+    phone               = models.CharField (validators=[clean_phone], max_length=64, blank=True,  null = True)
     email               = models.EmailField(max_length= 128,  null = True)
     # user = User.objects.create_user()
     class Meta:

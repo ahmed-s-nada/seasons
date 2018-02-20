@@ -1,10 +1,17 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
 from django.views.generic import CreateView, FormView, TemplateView, UpdateView
+from rest_framework.viewsets import GenericViewSet
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin, UpdateModelMixin
+from rest_framework.response import Response
 from members.models import member
+from .models import memberProfile
+from . serializers import MemberSerializer
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
 # from .forms import RegisterProfile
 
 # Create your views here.
@@ -46,13 +53,35 @@ def register(request):
 
 
 
-#
-#
-# class ProfileUpdate(UpdateView):
-#     def get(self, *args, **kwags):
-#         user = request.user
-#
-#     pass
+
+
+class ProfileAPI(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
+    """ Hi this is my first ModelViewSet """
+    authentication_classes = (SessionAuthentication, BasicAuthentication)
+    permission_classes = (IsAuthenticated,)
+    serializer_class = MemberSerializer
+    queryset = memberProfile.objects.all()
+
+    def list(self, request):
+        queryset = memberProfile.objects.all()
+        serializer = MemberSerializer(queryset, many=True, context={'request':request})
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        queryset = memberProfile.objects.all()
+        item = get_object_or_404(queryset, pk = pk)
+        serializer = MemberSerializer(item, context={'request':request})
+        return Response(serializer.data)
+
+    def partial_update(self, request, pk=None):
+        queryset = memberProfile.objects.all()
+        item = get_object_or_404(queryset, pk = pk)
+        serializer = MemberSerializer(data = request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
 
 #
 #

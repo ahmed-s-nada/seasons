@@ -18,6 +18,8 @@ class memberProfile(models.Model):
     addetional_email = models.EmailField(blank = True, null = True)
     active           = models.BooleanField(default = False)
 
+    def get_absolute_url(self):
+        return reverse('members:Profile:UpdateProfile', kwargs={'slug': self.id})
 
     def __str__(self):
         return "{} {}'s extended profile".format(self.member.first_name, self.member.last_name)

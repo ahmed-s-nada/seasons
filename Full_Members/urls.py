@@ -30,7 +30,7 @@ admin.site.site_title  = "Seasons"
 urlpatterns = [
     path('', home_page, name = 'index'),
     path('members/', include('members.urls', namespace = 'members')),
-    path('profile/', include('profile.urls', namespace='Profile') ),
+    # path('profile/', include('profile.urls', namespace='Profile') ),
     path('admin/', admin.site.urls),
     path('logout/', auth_views.LogoutView.as_view(template_name = 'profile/index.html')  , name= 'logout'),
     path('login/', auth_views.LoginView.as_view(template_name = 'profile/login.html', redirect_field_name = 'members:MembersDetails' )  , name= 'login'),

@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
 from django.views.generic import CreateView, FormView, TemplateView, UpdateView
@@ -15,6 +15,7 @@ from rest_framework.permissions import IsAuthenticated
 # from .forms import RegisterProfile
 
 # Create your views here.
+
 def index(request):
     return render(request, 'registeration/index.html')
 
@@ -52,7 +53,12 @@ def register(request):
 
 
 
+class UpdateProfile(UpdateView):
+    model = memberProfile
+    fields = ['facebook', 'twitter', 'instagarm', 'addetional_email']
+    template_name_suffix = '_update_form'
 
+    success_url = reverse_lazy('members:Index')
 
 
 class ProfileAPI(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericViewSet):
@@ -63,49 +69,10 @@ class ProfileAPI(ListModelMixin, RetrieveModelMixin, UpdateModelMixin, GenericVi
     queryset = memberProfile.objects.all()
 
     def list(self, request):
-        queryset = memberProfile.objects.all()
+        queryset = memberProfile.objects.filter(active=True)
         serializer = MemberSerializer(queryset, many=True, context={'request':request})
         return Response(serializer.data)
 
-    def retrieve(self, request, pk=None):
-        queryset = memberProfile.objects.all()
-        item = get_object_or_404(queryset, pk = pk)
-        serializer = MemberSerializer(item, context={'request':request})
-        return Response(serializer.data)
-
-    def partial_update(self, request, pk=None):
-        queryset = memberProfile.objects.all()
-        item = get_object_or_404(queryset, pk = pk)
-        serializer = MemberSerializer(data = request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors)
-
-#
-#
-# def user_login(request):
-#     if request.method == 'POST':
-#         userName= request.POST.get('User Name')
-#         password= request.POST.get('Password')
-#         user = authenticate( username = userName, password= password)
-#         if user:
-#             if user.is_active:
-#                 login (request, user)
-#                 return HttpResponseRedirect(reverse('index'))
-#             else:
-#                 return HttpResponse('User in not active!')
-#         else:
-#             return HttpResponse('Wrong username/password!')
-#
-# # this else (below) means that the requset is get not post so the user is trying to
-# # open the login page this is why we render the login html file, the login page wil not work without this part
-#     else:
-#         return render(request, 'registeration/login.html')
-#
-#
-# @login_required
-# def user_logout(request):
-#     logout(request)
-#     return HttpResponseRedirect(reverse('index'))
+    def perform_update(self, serializer):
+        if serializer.validated_data['twitter'] == '':
+            instance = serializer.save(twitter = 'No Twitter account!')

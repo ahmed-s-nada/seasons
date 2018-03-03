@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+{% extends "members/base.html" %}
+{% load staticfiles %}
+{% load static %}
+{% block content %}
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Details</title>
+  </head>
+  <body>
+
+      {% block body_block %}
+      <div class="container mybg1">
+        <h1>Memeber details page</h1>
+        <br>
+        <p>Membership Code: {{ single_member.memebership_code }}</p>
+        <p>First name: {{ single_member.first_name }} - Last name: {{ single_member.last_name }}</p>
+        {# <p>Last name: {{ single_member.last_name }}</p>#}
+        {# <p>Work Place: {{ single_member.age }} </p>#}
+        {# <p>Gender: {{ single_member.gender }}</p>#}
+        {# <p>Birthday: {{ single_member.birthDay }}</p>#}
+        <p>Email: {{ single_member.email }}</p>
+        {% if single_member.active %}
+          <h3 style="color:green;">الإشتراك ساري</h3>
+          {% if single_member.memebership_type == 'N' %}
+            <h3>إشتراك سنوي</h3>
+            <p style="color:red;"> المدة المتبقية على التجديد: {{single_member.days_left_to_renewal}} يوم </p>
+            {% endif %}
+            {% if single_member.memebership_type == 'F' %} <h3> إشتراك مجاني </h3> {% endif %}
+            {% if single_member.memebership_type == 'L' %} <h3> إشتراك مدى الحياة </h3> {% endif %}
+        {% else %}
+          <h3 style="color:red;"> الإشتراك غير ساري </h3>
+          {% if single_member.memebership_type == 'N' %}
+            <h3>إشتراك سنوي</h3>
+            <p style="color:red;">{{single_member.renewal_date}} : تاريخ إنتهاء العضوية   </p>
+          {% endif %}
+          {% if single_member.memebership_type == 'F' %} <h3> إشتراك مجاني </h3> {% endif %}
+          {% if single_member.memebership_type == 'L' %} <h3> إشتراك مدى الحياة </h3> {% endif %}
+        {% endif %}
+        {# <p>Subscribtion: {{ single_member.memebership_type }}</p>#}
+        {% if  single_member.profile_image.url != ""%}
+          <img id="image1" src="{{ single_member.profile_image.url }}" hight= "300" width="400" alt=" where is the image?">
+        {% else %}
+          <p> No image uploaded for this member</p>
+        {% endif %}
+        <hr>
+        <br>
+        {% if single_member.spousesubmember_set.all %}
+          {% for sub in single_member.spousesubmember_set.all %}
+            <h3>Spouse Name: {{sub.first_name}} {{sub.last_name}}</h3>
+            <img id="image2" src="{{ sub.profile_image.url }}" hight= "300" width="400" alt="">
+          {% endfor %}
+        {% endif %}
+        <hr>
+        <br>
+        {% if single_member.under21submeber_set.all %}
+          {% for sub in single_member.under21submeber_set.all %}
+            <h3>Under21 member name: {{sub.first_name}} {{sub.last_name}}</h3>
+            <img id="image2" src="{{ sub.profile_image.url }}" hight= "300" width="400" alt="">
+          {% endfor %}
+        {% endif %}
+        <hr>
+        <br>
+        {% if single_member.singleparentsubmember_set.all %}
+          {% for sub in single_member.singleparentsubmember_set.all %}
+            <h3>Name: {{sub.first_name}} {{sub.last_name}}</h3>
+            <img id="image2" src="{{ sub.profile_image.url }}" hight= "300" width="400" alt="">
+          {% endfor %}
+        {% endif %}
+        <br>
+        <p>{{single_member.facebook}}</p>
+        <p>{{single_member.twitter}}</p>
+        <br>
+        {% if single_member.User_Name == user%}
+          <a href="{% url 'members:Update' pk=single_member.pk %}" class="btn btn-primary">Edit profile</a>
+        {% endif %}
+        <br>
+        <hr>
+
+      </div>
+      {% endblock %}
+
+
+  </body>
+</html>
+{% endblock %}

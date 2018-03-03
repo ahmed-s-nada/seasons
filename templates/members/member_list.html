@@ -11,7 +11,7 @@
     {% block body_block %}
     <ol>
       {% for m in all_members %}
-        <h3><li> <a href="{{ m.slug }}">{{ m.User_Name }}</a> </li></h3>
+        <h3><li> <a href="{% url 'members:MembersDetails' slug=m.slug %}">{{ m.first_name }} {{m.last_name }} - Memebership Code: {{m.memebership_code}}</a> </li></h3>
       {% endfor %}
     </ol>
     {% endblock %}

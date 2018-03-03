@@ -160,17 +160,17 @@ class Under21SubMeberInline(NestedStackedInline):
     readonly_fields = ['image_tag', 'age']
 
 
-class memberProfileInline(NestedStackedInline):
-
-    model = memberProfile
-    extra = 0
-    max_num = 1
-
-    fieldsets = (
-        ('Extended profile',{
-            'classes': ('collapse',),
-            'fields': ('active', 'addetional_email', ('facebook', 'twitter', 'instagarm'))
-        }),)
+# class memberProfileInline(NestedStackedInline):
+#
+#     model = memberProfile
+#     extra = 0
+#     max_num = 1
+#
+#     fieldsets = (
+#         ('Extended profile',{
+#             'classes': ('collapse',),
+#             'fields': ('active', 'addetional_email', ('facebook', 'twitter', 'instagarm'))
+#         }),)
 
 
 # End of the Inlines section *********************************************************************
@@ -279,18 +279,18 @@ class memberAdmin(ImportExportMixin, ImageWidgetAdmin, NestedModelAdmin ):
 
     def days_left(self, obj):
         if obj.days_left_to_renewal >= 30:
-            return format_html('<div align="right" style="background-color:#b3ffb3;"><b>' + "%.0f" % obj.days_left_to_renewal + '</b></div>')
+            return format_html('<div align="center" style="background-color:#b3ffb3;"><b>' + "%.0f" % obj.days_left_to_renewal + '</b></div>')
         elif  obj.days_left_to_renewal >= 1 and obj.days_left_to_renewal < 30:
-            return format_html('<div align="right" style="background-color:#eef442;"><b>' + "%.0f" % obj.days_left_to_renewal + '</b></div>')
+            return format_html('<div align="center" style="background-color:#eef442;"><b>' + "%.0f" % obj.days_left_to_renewal + '</b></div>')
         else:
-            return format_html('<div align="right" style="background-color:#ff9999;"><b>' + "%.0f" % obj.days_left_to_renewal + '</b></div>')
+            return format_html('<div align="center" style="background-color:#ff9999;"><b>' + "%.0f" % obj.days_left_to_renewal + '</b></div>')
 
     days_left.allow_tags = True
 
 
 
     search_fields   = ('first_name', 'last_name','memebership_code' )
-    inlines         = [PaymentInline, memberProfileInline, SpouseSubmemberInline,
+    inlines         = [PaymentInline, SpouseSubmemberInline,
                        Under21SubMeberInline, SingleParentSubmemberInline]
     list_display    = ('first_name','last_name', 'memebership_code', 'membership_start',
                        'renewal_date', 'days_left', 'memebership_type', 'active', 'image_tag')
@@ -307,8 +307,8 @@ class memberAdmin(ImportExportMixin, ImageWidgetAdmin, NestedModelAdmin ):
       }),
       ('Personal info', {
           'classes': ('collapse',),
-          'fields': ('gender', ('birthDay', 'age'), ('job_title', 'company'), ('email', 'email2'), ('phone',
-              'phone2', 'fax'), 'profile_image', 'uploaded_at' ,'notes')
+          'fields': ('gender', ('birthDay', 'age'), ('job_title', 'company'), ('email', 'addetional_email'), ('phone',
+              'phone2'), 'fax', ('facebook', 'twitter'), 'instagarm', 'profile_image', 'uploaded_at' ,'notes')
       }),('Other Club Memberships', {
           'classes': ('collapse','extrapretty',),
           'fields': ('al_ahly', 'Al_Zamalek', 'Wadi_Degla', 'New_Giza', 'Al_Jazira', 'Al_Said')

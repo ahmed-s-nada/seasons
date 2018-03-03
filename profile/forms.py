@@ -10,11 +10,11 @@ from members.models import member
 #     class Meta:
 #         model = memberProfile
 #         exclude = ['active',]
-# 
+#
 
-#
-#
-# class userProfileInfoForm(forms.ModelForm):
-#     class Meta():
-#         model = userProfileInfo
-#         fields = ('favSite', 'favPhoto')
+
+
+class userProfileInfoForm(forms.ModelForm):
+    class Meta():
+        model = userProfileInfo
+        fields = ('facebook', 'twitter', 'instagarm', 'addetional_email')

@@ -9,25 +9,28 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.6/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="{% static "/css/mycss4.css" %}">
+    {# <link rel="stylesheet" href="{% static "/css/new.css" %}">#}
     <title></title>
   </head>
   <body>
     <nav class= "navbar navbar-light" style="background-color: #e3f2fd;">
-      <a class="navbar-brand">Staff Registeration</a>
-      <a href="{% url 'members:Index' %}">Staff</a>
-      <a href="{% url 'members:mainForm' %}">Add Staff</a>
-      <a href="{% url 'members:listData' %}">List Staff</a>
+      <a class="navbar-brand">Saesons Members</a>
+      <a href="{% url 'members:Index' %}">Members</a>
+      {# <a href="{% url 'members:mainForm' %}">Add Staff</a>#}
+      {# <a href="{% url 'members:listData' %}">List Memebers</a>#}
       {% if user.is_authenticated %}
         <a href="{% url 'logout' %}">Logout</a>
       {% else %}
         <a href="{% url 'login' %}">Login</a>
       {% endif %}
       <a href="{% url 'index' %}">Home</a>
+      {% if user.is_staff %}
       <a href="{% url 'admin:index'%}">Admin Page</a>
-      <form class="form-inline">
-        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+      <form class="form-inline my-6 my-lg-2" method="get" action="{% url 'members:Search' %}">
+          <input class="form-control mr-sm-4" type="search" placeholder="Search" name = 'q' aria-label="Search">
+          <button class="btn btn-outline-success my-5 my-sm-2" type="submit">Search</button>
       </form>
+      {% endif %}
       <br>
     </nav>
     <br>

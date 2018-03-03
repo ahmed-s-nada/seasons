@@ -112,3 +112,10 @@ textarea{
   padding-left: 15px;
   padding-right: 15px;
 }
+
+
+.test{
+  display: inline-block;
+  width: 50%;
+  margin: auto;
+}

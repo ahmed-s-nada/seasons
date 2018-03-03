@@ -7,15 +7,38 @@ from django.utils.text import slugify
 from django.core.mail import send_mail
 import string, secrets
 from . validators import clean_phone
+from django.db.models import Q
 
 
-# Create your models here.
 # The member section *********************************************************************
-class memberQuerySet(models.query.QuerySet):
-    pass
 
-class memberManager(models.Manager):
-    pass
+class MemberQuerySet(models.query.QuerySet):
+
+    def get_female(self):
+        return self.filter(gender='Mrs')
+
+    def get_male(self):
+        return self.filter(gender='Mr')
+
+    def get_age_range(self, min_age, max_age):
+        return self.filter(age__lte = max_age).filter(age__gte=min_age)
+
+    def search (self, query):
+        lookups = Q(first_name__icontains = query )| Q(memebership_code__icontains = query )
+        print('from search in queryset ', query)
+        return self.filter(lookups)
+
+
+
+class MemberManager(models.Manager):
+
+    def get_queryset(self):
+        return MemberQuerySet(self.model, using= self._db)
+
+    def search(self, query):
+        return self.get_queryset().search(query)
+
+
 
 class member(models.Model):
     # form = MemberForm
@@ -46,7 +69,7 @@ class member(models.Model):
     job_title            = models.CharField(max_length=32, blank=True, null = True)
     company              = models.CharField(max_length=32, blank=True, null = True)
     email                = models.EmailField(max_length= 128)
-    email2               = models.EmailField(max_length= 128, blank = True, null = True)
+    # email2               = models.EmailField(max_length= 128, blank = True, null = True)
     phone                = models.CharField (validators=[clean_phone], max_length=16, null=True, blank=True)
     phone2               = models.CharField (validators=[clean_phone], max_length=16, blank=True, null = True)
     fax                  = models.CharField (validators=[clean_phone], max_length=16, blank=True, null = True)
@@ -59,8 +82,16 @@ class member(models.Model):
     profile_image        = models.ImageField(upload_to = 'profiles', null = True, blank = True)
     uploaded_at          = models.DateTimeField(auto_now_add = True, null = True )
     notes                = models.TextField(null=True, blank=True)
+    password             = models.CharField(max_length = 512, default='abcd1234')
+    facebook             = models.URLField(verbose_name= 'Facebook', blank = True, null = True)
+    twitter              = models.URLField(verbose_name= 'Twitter', blank = True, null = True)
+    instagarm            = models.URLField(verbose_name= 'Instagram', blank = True, null = True)
+    addetional_email     = models.EmailField(blank = True, null = True)
     slug                 = models.SlugField(blank = True,null= True, editable =False )
     no_of_submembers     = models.PositiveIntegerField(blank=True, default=0, editable = False)
+
+
+    objects = MemberManager()
 
     def save(self, *args, **kwargs):
         # if self.member_account == None:
@@ -80,9 +111,15 @@ class member(models.Model):
             # if qs.count() == 0:
             user = User.objects.create_user(username = username, password = password)
             self.User_Name = user
-            send_mail('Member Details', 'Hi! This is your login details:\nUsername: {} \nPassword: {} \n'.format(username, password), 'cloud@buildoncloud.website', ['business@ahmed-nada.com'])
+            self.password= user.password
+            send_mail('Member Details', 'Hi! This is your login details:\nUsername: {} \nPassword: {} \n'.format(username, password),
+                      'cloud@buildoncloud.website', ['business@ahmed-nada.com'])
 
         super(member, self).save(*args, **kwargs)
+
+
+    def get_absolute_url(self):
+        return reverse('members:MembersDetails', kwargs={'slug': self.slug})
 
 
     def __str__ (self):
@@ -137,16 +174,17 @@ post_init.connect(count_days_post_init, sender=member)
 
 
 def member_post_delete(instance, sender, *args, **kwargs):
-    if not instance.User_Name == 'Admin':
+
+    if not instance.User_Name.is_superuser:
         user = User.objects.get(username = instance.User_Name)
         print(user)
         user.delete()
 post_delete.connect(member_post_delete, sender=member)
 
-# End of The member section *********************************************************************
+# End of The member section ************************************************************
 
 
-# The Submember classes section *********************************************************************
+# The Submember classes section *********************************************************
 
 class SubMemberBase(models.Model):
     MALE = 'Mr'
@@ -265,10 +303,10 @@ pre_save.connect(sub_member_counter_pre_save, sender = SingleInLawSubmember)
 pre_delete.connect(sub_member_counter_pre_delete, sender = SingleInLawSubmember, dispatch_uid='In_law_id')
 
 
-# END OF The Submember classes section *********************************************************************
+# END OF The Submember classes section **********************************************************
 
 
-# The Paymnet section *******************************************************************************
+# The Paymnet section ***************************************************************************
 
 class Payment(models.Model):
 
@@ -290,7 +328,7 @@ class Instalment(models.Model):
 
     methodes = (('CASH', 'Cash'), ('CRIDIT', 'VISA/MASTER'), ('CHEQUE', 'Cheque'))
 
-    payment_file       = models.ForeignKey(Payment, on_delete=models.CASCADE)
+    payment_file       = models.ForeignKey(Payment, related_name='instalments', on_delete=models.CASCADE)
     payment_methode    = models.CharField(max_length = 11, choices = methodes)
     instalment_details = models.CharField(max_length = 128, blank = True)
     instalment_date    = models.DateField(auto_now=False, blank = True,  default = date.today())
@@ -301,7 +339,7 @@ class Instalment(models.Model):
 
 
 def payment_post_init(instance, sender, *args, **kwargs):
-    instalments= instance.instalment_set.all()
+    instalments= instance.instalments.all()
 
     temp_total = 0
     instance.number_of_Instalment = instalments.count()
@@ -315,4 +353,4 @@ def payment_post_init(instance, sender, *args, **kwargs):
 
 post_init.connect(payment_post_init, sender = Payment)
 
-# End of The Paymnet section *******************************************************************************
+# End of The Paymnet section *************************************************************

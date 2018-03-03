@@ -1,43 +1,260 @@
 <!DOCTYPE html>
-{% extends "members/base.html" %}
 {% load staticfiles %}
 {% load static %}
 {% block content %}
+<html lang="en">
+<head>
+  <!-- Theme Made By www.w3schools.com - No Copyright -->
+  <title>Season Member Profile</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>Details</title>
-  </head>
-  <body>
+</head>
+<body>
+  {% block body_block %}
+  <style>
+  body {
+      font: 20px Montserrat, sans-serif;
+      line-height: 1.8;
+      color: #f5f6f7;
+  }
+  p {font-size: 16px;}
+  .margin {margin-bottom: 45px;}
+  .bg-1 {
+    /*  background-color: #1abc9c;  Green */
+    background-color: #2bc48c;
+      color: #ffffff;
+  }
+  .bg-2 {
+      background-color: #474e5d; /* Dark Blue */
+      color: #ffffff;
+  }
+  .bg-3 {
+    /*  background-color: #ffffff;  White */
+    /*  color: #555555; */
+      color:white;
+      background-image: url(http://www.seasonscountryclub.com/images/slider/04.jpg);
+      background-size:cover;
+      text-shadow: 1px 1px black;
+  }
+  .bg-4 {
+      background-color: #2f2f2f; /* Black Gray */
+      color: #fff;
+  }
+  .container-fluid {
+      padding-top: 70px;
+      padding-bottom: 70px;
+  }
+  .navbar {
+      padding-top: 8px;
+      padding-bottom: 2px;
+      border: 3;
+      border-style: dotted;
+      border-width: 2;
+      border-radius: 10;
+      border-color: red;
+      margin-bottom: 0;
+      font-size: 18px;
+      letter-spacing: 2px;
+      text-align: center;
+  }
+  .navbar-nav  li a:hover {
+      color: #1abc9c !important;
+  }
 
-      {% block body_block %}
-      <div class="container mybg1">
-        <h1>Welcome to the details page</h1>
-        <p>User name: {{ single_member.User_Name }}</p>
-        <p>First name: {{ single_member.first_name }}</p>
-        <p>Last name: {{ single_member.last_name }}</p>
-        <p>Work Place: {{ single_member.age }} </p>
-        <p>Gender: {{ single_member.gender }}</p>
-        <p>Birthday: {{ single_member.birthDay }}</p>
-        <p>Email: {{ single_member.Email }}</p>
-        <p>Subscribtion: {{ single_member.Memebership_type }}</p>
-        {% if  single_member.profile_image.url != ""%}
-          <img id="image1" src="{{ single_member.profile_image.url }}" hight= "300" width="400" alt=" where is the image?">
-        {% else %}
-          <p> No image uploaded for this member</p>
+  .aa{
+    display:inline;
+    box-shadow: 0 6px 12px 0 rgba(0, 0, 0, 0.4), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    padding-bottom: 6px;
+    width: 50%;
+  }
+
+  .ab{
+    display:inline;
+    box-shadow: 0 6px 12px 0 rgba(0, 0, 0, 0.4), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    padding-bottom: 6px;
+    width: 50%;
+    border-style: dotted;
+    border-width: 2;
+    border-radius: 10;
+    border-color: cyan;
+  }
+
+  .abc{
+    background-color: rgba(155, 200, 200, 0.4);
+    display:block;
+    width:50%;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    border-width: 2;
+    border-style: solid;
+    border-radius: 10;
+    border-color: blue;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  }
+
+.all{
+  width:96%;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+  </style>
+<div class="all">
+  <nav class= "navbar navbar-light" style="background-color: #e3f2fd;">
+    <a class="navbar-brand">Saesons Members</a>
+    <a href="{% url 'members:Index' %}">Members</a>
+    {# <a href="{% url 'members:mainForm' %}">Add Staff</a>#}
+    {# <a href="{% url 'members:listData' %}">List Memebers</a>#}
+    {% if user.is_authenticated %}
+      <a href="{% url 'logout' %}">Logout</a>
+    {% else %}
+      <a href="{% url 'login' %}">Login</a>
+    {% endif %}
+    <a href="{% url 'index' %}">Home</a>
+    {% if user.is_staff %}
+    <a href="{% url 'admin:index'%}">Admin Page</a>
+    <form class="form-inline my-4 my-lg-2" method="get" action="{% url 'members:Search' %}">
+        <input class="form-control mr-sm-3" type="search" placeholder="Search" name = 'q' aria-label="Search">
+        <button class="btn btn-outline-success my-3 my-sm-2" type="submit">Search</button>
+    </form>
+    {% endif %}
+    <br>
+  </nav>
+
+<!-- First Container -->
+
+
+<div class="container-fluid bg-1 text-center">
+  <h1 class="margin" style="color:yellow;font-weight:bold;">Memeber Details Page</h1>
+  {% if  single_member.profile_image.url != ""%}
+   <img src="{{ single_member.profile_image.url }}" class="img-responsive img-circle margin" style="display:inline;box-shadow: 0 6px 12px 0 rgba(0, 0, 0, 0.4), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" alt="Bird" width="350" height="350" id="image1" >
+  {% else %}
+   <p> No image uploaded for this member</p>
+  {% endif %}
+  <div class="col-sm-6 ab">
+    <br>
+  {% if single_member.active %}
+    <h2 style="color:green;">الإشتراك ساري</h2>
+    {% if single_member.memebership_type == 'N' %}
+      <h3>إشتراك سنوي</h3>
+      <p style="color:red;"> المدة المتبقية على التجديد: {{single_member.days_left_to_renewal}} يوم </p>
+      {% endif %}
+      {% if single_member.memebership_type == 'F' %} <h3> إشتراك مجاني </h3> {% endif %}
+      {% if single_member.memebership_type == 'L' %} <h3> إشتراك مدى الحياة </h3> {% endif %}
+  {% else %}
+    <h2 style="color:red;"> الإشتراك غير ساري </h2>
+    {% if single_member.memebership_type == 'N' %}
+      <h3>إشتراك سنوي</h3>
+      <p style="color:red;">{{single_member.renewal_date}} : تاريخ إنتهاء العضوية   </p>
+    {% endif %}
+    {% if single_member.memebership_type == 'F' %} <h3> إشتراك مجاني </h3> {% endif %}
+    {% if single_member.memebership_type == 'L' %} <h3> إشتراك مدى الحياة </h3> {% endif %}
+  {% endif %}
+  <p>Membership Code: {{ single_member.memebership_code }}</p>
+  <p>First name: {{ single_member.first_name }} - Last name: {{ single_member.last_name }}</p>
+  <hr>
+  <br>
+</div>
+
+<!-- Second Container -->
+  {% if single_member.spousesubmember_set.all %}
+    <div class="container-fluid bg-3 text-center">
+      <div class="abc">
+      <h2>Spouse</h2>
+
+      {% for sub in single_member.spousesubmember_set.all %}
+
+        <br>
+        <h3>Spouse Name: {{sub.first_name}} {{sub.last_name}}</h3>
+        <br>
+        {% if sub.profile_image %}
+          <img id="image2" src="{{ sub.profile_image.url }}" hight= "250" width="250" alt="">
         {% endif %}
-        <hr>
-        {% if single_member.submember_set.all %}
-          {% for sub in single_member.submember_set.all %}
-            {{sub.name}}
-            <img id="image2" src="{{ sub.profile_image.url }}" hight= "300" width="400" alt="">
-          {% endfor %}
-        {% endif %}
+
       </div>
-      {% endblock %}
 
+      {% endfor %}
+  {% endif %}
+  <hr>
+  <hr>
+  <br>
+  
+  {% if single_member.under21submeber_set.all %}
+  <div class="container-fluid bg-3 text-center">
+    <h2>Children</h2>
+    {% for sub in single_member.under21submeber_set.all %}
+    <div class="col-sm-6 aa">
+      <h3>Under21 member name: {{sub.first_name}} {{sub.last_name}}</h3>
+      {% if sub.profile_image %}
+        <img id="image2" src="{{ sub.profile_image.url }}" hight= "50%" width="50%" alt="">
+      {% endif %}
+    </div>
+    {% endfor %}
+  {% endif %}
+  <hr>
+</div>
+  <br>
+  {% if single_member.singleparentsubmember_set.all %}
+  <h2>Parents</h2>
+    {% for sub in single_member.singleparentsubmember_set.all %}
+      <h3>Name: {{sub.first_name}} {{sub.last_name}}</h3>
+      {% if sub.profile_image %}
+      <img id="image2" src="{{ sub.profile_image.url }}" hight= "250" width="250" alt="">
+    {% endif %}
+    {% endfor %}
+  {% endif %}
+  <br>
 
-  </body>
+</div>
+<hr>
+<hr>
+<!-- Third Container (Grid) -->
+  {% if single_member.User_Name == user%}
+<div class="container-fluid bg-1 text-center">
+  <h2 class="margin" style="color:yellow;font-weight:bold;">My Profile</h2>
+  <a href="{% url 'members:Update' pk=single_member.pk %}" class="btn btn-primary">Edit profile</a>
+  <div class="row">
+    <br>
+    <div class="col-sm-4" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+      <h3 style="color:blue;text-shadow: 1px 1px black;">Personal</h3>
+      <br>
+      <p>Name: {{single_member.first_name}} {{single_member.last_name}}</p>
+        <p>Birthday: {{ single_member.birthDay }}</p>
+        <p>Age: {{single_member.age}}</p>
+      <br>
+    </div>
+    <div class="col-sm-4" >
+      <h3 style="color:blue;text-shadow: 1px 1px black;">Work</h3>
+      <br>
+      <p>Job Title: {{ single_member.job_title }} </p>
+      <p>Work Place: {{ single_member.company }} </p>
+    </div>
+    <div class="col-sm-4" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+      <h3 style="color:blue;text-shadow: 1px 1px black;">Contacts & Social</h3>
+      <br>
+      <p>Phone: {{single_member.phone}}</p>
+      <p>Email: {{single_member.email}}</p>
+      <p>{{single_member.facebook}}</p>
+      <p>{{single_member.twitter}}</p>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+</div>
+<!-- Footer -->
+<footer class="container-fluid bg-4 text-center">
+  <p> @copy </p>
+</footer>
+{% endblock %}
+</body>
 </html>
 {% endblock %}
